@@ -1,13 +1,10 @@
 import express from "express";
 import swaggerJSDoc from "swagger-jsdoc";
 import { serve, setup } from "swagger-ui-express";
-// import { json } from "body-parser";
-// require("dotenv").config();
 
 const app = express();
 const port = 8080;
 
-// app.use(json());
 app.use((req, res, next) => {
   res.header("Access-Control-Allow-Origin", "*");
   res.header("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE");
