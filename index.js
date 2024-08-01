@@ -1,6 +1,7 @@
 import express from "express";
 import swaggerJSDoc from "swagger-jsdoc";
 import { serve, setup } from "swagger-ui-express";
+import maria from "./db.js";
 
 const app = express();
 const port = 8080;
