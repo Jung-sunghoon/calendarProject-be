@@ -1,0 +1,50 @@
+-- users 테이블 생성
+CREATE TABLE IF NOT EXISTS users (
+  email VARCHAR(255) PRIMARY KEY,
+  username VARCHAR(255),
+  nickname VARCHAR(255)
+);
+
+-- schedule 테이블 생성
+CREATE TABLE IF NOT EXISTS schedule (
+  schedule_id INT AUTO_INCREMENT PRIMARY KEY,
+  schedule_title VARCHAR(255),
+  schedule_description TEXT,
+  schedule_start TIMESTAMP,
+  schedule_end TIMESTAMP,
+  schedule_notification BOOLEAN DEFAULT FALSE,
+  schedule_recurring BOOLEAN DEFAULT FALSE
+);
+
+-- recurring_pattern 테이블 생성
+CREATE TABLE IF NOT EXISTS recurring_pattern (
+  pattern_id INT AUTO_INCREMENT PRIMARY KEY,
+  schedule_id INT,
+  repeat_type ENUM('daily', 'weekly', 'monthly', 'yearly'),
+  repeat_interval INT,
+  repeat_on JSON,
+  starts_on DATE,
+  ends_on DATE,
+  FOREIGN KEY (schedule_id) REFERENCES schedule(schedule_id)
+);
+
+-- users 테이블에 샘플 데이터 삽입
+INSERT IGNORE INTO users (email, username, nickname)
+VALUES 
+('john.doe@example.com', 'johndoe', '존'),
+('jane.smith@example.com', 'janesmith', '제인'),
+('alice.wonderland@example.com', 'alicew', '앨리스');
+
+-- schedule 테이블에 샘플 데이터 삽입
+INSERT IGNORE INTO schedule (schedule_title, schedule_description, schedule_start, schedule_end, schedule_notification, schedule_recurring)
+VALUES 
+('팀 회의', '주간 팀 동기화 회의', '2024-08-05 10:00:00', '2024-08-05 11:00:00', TRUE, TRUE),
+('병원 예약', '연간 건강 검진', '2024-08-07 09:00:00', '2024-08-07 10:00:00', FALSE, FALSE),
+('프로젝트 마감일', '프로젝트 최종 제출', '2024-08-15 17:00:00', '2024-08-15 18:00:00', TRUE, FALSE);
+
+-- recurring_pattern 테이블에 샘플 데이터 삽입
+INSERT IGNORE INTO recurring_pattern (schedule_id, repeat_type, repeat_interval, repeat_on, starts_on, ends_on)
+VALUES 
+(1, 'weekly', 1, JSON_ARRAY('월요일'), '2024-08-05', '2024-12-31'),
+(1, 'monthly', 1, JSON_ARRAY('5일'), '2024-08-05', '2024-12-31'),
+(1, 'yearly', 1, JSON_ARRAY('8월 5일'), '2024-08-05', '2027-08-05');
