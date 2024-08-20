@@ -9,7 +9,7 @@ import pool from "../../DB/db.js";
 
 /**
  * @swagger
- * /schedules:
+ * /schedule:
  *   post:
  *     summary: Create a new schedule
  *     description: Create a new schedule in the calendar.
@@ -101,7 +101,7 @@ const createSchedule = async (req, res) => {
 
 /**
  * @swagger
- * /schedules/{id}:
+ * /schedule/{id}:
  *   delete:
  *     summary: Delete a schedule
  *     description: Delete an existing schedule from the calendar.
@@ -181,7 +181,7 @@ const deleteSchedule = async (req, res) => {
 
 /**
  * @swagger
- * /schedules/{id}:
+ * /schedule/{id}:
  *   put:
  *     summary: Update a schedule
  *     description: Update an existing schedule in the calendar.
