@@ -1,3 +1,8 @@
+-- 테이블 삭제
+DROP TABLE IF EXISTS recurring_pattern;
+DROP TABLE IF EXISTS schedule;
+DROP TABLE IF EXISTS users;
+
 -- users 테이블 생성
 CREATE TABLE IF NOT EXISTS users (
   email VARCHAR(255) PRIMARY KEY,
@@ -45,6 +50,4 @@ VALUES
 -- recurring_pattern 테이블에 샘플 데이터 삽입
 INSERT IGNORE INTO recurring_pattern (schedule_id, repeat_type, repeat_interval, repeat_on, starts_on, ends_on)
 VALUES 
-(1, 'weekly', 1, JSON_ARRAY('월요일'), '2024-08-05', '2024-12-31'),
-(1, 'monthly', 1, JSON_ARRAY('5일'), '2024-08-05', '2024-12-31'),
-(1, 'yearly', 1, JSON_ARRAY('8월 5일'), '2024-08-05', '2027-08-05');
+(1, 'weekly', 1, JSON_ARRAY('월요일'), '2024-08-05', '2024-12-31');

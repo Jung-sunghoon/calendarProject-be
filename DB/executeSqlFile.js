@@ -22,9 +22,7 @@ const executeSqlFile = async () => {
     console.log("SQL file executed successfully");
   } catch (err) {
     console.error("Error executing SQL file:", err);
-  } finally {
-    await pool.end();
   }
 };
 
-executeSqlFile();
+export default executeSqlFile;
