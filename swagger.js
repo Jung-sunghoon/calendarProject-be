@@ -30,6 +30,28 @@ const swaggerOptions = {
         description: "Local server",
       },
     ],
+    schemes: ["http"],
+    securityDefinitions: {
+      bearerAuth: {
+        type: "apiKey",
+        name: "Authorization",
+        in: "header",
+      },
+    },
+    components: {
+      securitySchemes: {
+        bearerAuth: {
+          type: "apiKey",
+          name: "Authorization",
+          in: "header",
+        },
+      },
+    },
+    security: [
+      {
+        bearerAuth: [],
+      },
+    ],
   },
   apis: ["./routes/apis/*.js"], // API 문서 주석을 포함한 파일의 경로
 };
