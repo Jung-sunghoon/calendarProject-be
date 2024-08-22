@@ -27,7 +27,7 @@ app.use((req, res, next) => {
 });
 app.use(
   session({
-    secret: "your_session_secret",
+    secret: process.env.SESSION_SECRET,
     resave: false,
     saveUninitialized: false,
     cookie: { secure: false }, // HTTPS를 사용하는 경우 true로 설정
@@ -84,25 +84,35 @@ app.get("/Oauth/google/callback", async (req, res) => {
     // 사용자 정보를 데이터베이스에 저장하거나 확인
     const connection = await pool.getConnection();
     try {
-      const [rows] = await connection.execute("SELECT username FROM users WHERE email = ?", [email]);
+      const [rows] = await connection.execute(
+        "SELECT username FROM users WHERE email = ?",
+        [email]
+      );
       console.log([rows]);
 
       if (!rows) {
-        await connection.execute("INSERT INTO users (email, username, nickname) VALUES (?, ?, ?)", [
-          email,
-          given_name,
-          name,
-        ]);
+        await connection.execute(
+          "INSERT INTO users (email, username, nickname) VALUES (?, ?, ?)",
+          [email, given_name, name]
+        );
       }
     } finally {
       connection.release();
     }
 
     // JWT 토큰을 생성합니다.
-    const token = jwt.sign({ email }, process.env.SESSION_SECRET, { expiresIn: "1h" });
+    const token = jwt.sign({ email }, process.env.SESSION_SECRET, {
+      expiresIn: "1h",
+    });
 
     // 클라이언트로 리다이렉트합니다. 토큰과 사용자 정보를 함께 전달합니다.
-    res.redirect(`/auth-success?token=${token}&user=${JSON.stringify({ email, given_name, name })}`);
+    res.redirect(
+      `/auth-success?token=${token}&user=${JSON.stringify({
+        email,
+        given_name,
+        name,
+      })}`
+    );
   } catch (error) {
     console.error("Error during Google OAuth:", error);
     res.status(500).send("Authentication failed");

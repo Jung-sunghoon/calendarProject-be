@@ -1,6 +1,7 @@
 import express from "express";
 import scheduleController from "./routes/apis/schedule.controller.js";
 import scheduleAdminController from "./routes/apis/scheduleAdmin.controller.js";
+import weatherController from "./routes/apis/weather.controller.js";
 
 const router = express.Router();
 
@@ -10,5 +11,6 @@ router.get("/schedule/:id", scheduleController.getScheduleById);
 router.post("/schedule", scheduleAdminController.createSchedule);
 router.delete("/schedule/:id", scheduleAdminController.deleteSchedule);
 router.put("/schedule/:id", scheduleAdminController.updateSchedule);
+router.get("/weather", weatherController);
 
 export default router;

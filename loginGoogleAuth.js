@@ -6,9 +6,10 @@ function getGoogleAuthURL() {
     access_type: "offline",
     response_type: "code",
     prompt: "consent",
-    scope: ["https://www.googleapis.com/auth/userinfo.profile", "https://www.googleapis.com/auth/userinfo.email"].join(
-      " "
-    ),
+    scope: [
+      "https://www.googleapis.com/auth/userinfo.profile",
+      "https://www.googleapis.com/auth/userinfo.email",
+    ].join(" "),
   });
 
   return `${googleAuthURL}?${params.toString()}`;
@@ -43,11 +44,14 @@ async function getGoogleUser(code) {
     access_token: access_token,
   });
 
-  const profileResponse = await fetch(`https://www.googleapis.com/oauth2/v1/userinfo?${userInfoParams.toString()}`, {
-    headers: {
-      Authorization: `Bearer ${id_token}`,
-    },
-  });
+  const profileResponse = await fetch(
+    `https://www.googleapis.com/oauth2/v1/userinfo?${userInfoParams.toString()}`,
+    {
+      headers: {
+        Authorization: `Bearer ${id_token}`,
+      },
+    }
+  );
 
   if (!profileResponse.ok) {
     throw new Error(`HTTP error! status: ${profileResponse.status}`);
