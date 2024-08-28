@@ -34,6 +34,7 @@ app.use((req, res, next) => {
 app.use(
   session({
     secret: process.env.SESSION_SECRET,
+    secret: process.env.SESSION_SECRET,
     resave: false,
     saveUninitialized: false,
     cookie: { secure: false }, // HTTPS를 사용하는 경우 true로 설정
