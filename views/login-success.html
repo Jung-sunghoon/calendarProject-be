@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="ko">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>로그인 성공</title>
+  </head>
+  <body>
+    <h1>로그인 성공!</h1>
+    <p>JWT 토큰이 처리되었습니다.</p>
+    <button class="logout">logout</button>
+    <script>
+      const logoutBtn = document.querySelector(".logout");
+
+      document.addEventListener("DOMContentLoaded", function () {
+        // URL에서 토큰 추출
+        const urlParams = new URLSearchParams(window.location.search);
+        const token = urlParams.get("token");
+
+        if (token) {
+          // 토큰을 로컬 스토리지에 저장
+          sessionStorage.setItem("jwtToken", token);
+
+          // 토큰을 사용하여 인증된 요청 예시
+          fetchUserData(token);
+        } else {
+          console.error("토큰이 URL에 없습니다.");
+        }
+      });
+
+      function fetchUserData(token) {
+        fetch("http://localhost:8080/api/user", {
+          method: "GET",
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+        })
+          .then((response) => response.json())
+          .then((data) => {
+            console.log("사용자 데이터:", data);
+            // 여기서 사용자 데이터를 처리하거나 표시합니다.
+          })
+          .catch((error) => {
+            console.error("데이터 가져오기 오류:", error);
+          });
+      }
+
+      function logout() {
+        sessionStorage.removeItem("jwtToken");
+        window.location.href = "/";
+
+        // // 서버에 로그아웃 요청 (선택적)
+        // fetch("/api/logout", {
+        //   method: "POST",
+        //   headers: {
+        //     Authorization: `Bearer ${localStorage.getItem("jwtToken")}`,
+        //   },
+        // })
+        //   .then((response) => {
+        //     if (response.ok) {
+        //       console.log("서버 로그아웃 성공");
+        //     }
+        //   })
+        //   .catch((error) => {
+        //     console.error("로그아웃 중 오류 발생:", error);
+        //   })
+        // .finally(() => {
+        //   // 홈페이지로 리다이렉트
+        //   window.location.href = '/';
+        // });
+      }
+
+      logoutBtn.addEventListener("click", () => {
+        logout();
+      });
+    </script>
+  </body>
+</html>
