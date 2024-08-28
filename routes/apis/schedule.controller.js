@@ -1,5 +1,12 @@
 import pool from "../../DB/db.js";
 
+const formatDateToKST = (dateString) => {
+  const date = new Date(dateString);
+  const kstOffset = 9 * 60;
+  const kstDate = new Date(date.getTime() + kstOffset * 60000);
+  return kstDate.toISOString().slice(0, 19).replace("T", " ");
+};
+
 /**
  * @swagger
  * tags:
@@ -47,29 +54,69 @@ import pool from "../../DB/db.js";
  *                   schedule_recurring:
  *                     type: boolean
  *                     description: Whether the schedule is recurring
+ *                   recurring_pattern:
+ *                     type: object
+ *                     properties:
+ *                       repeat_type:
+ *                         type: string
+ *                         description: Type of recurrence (daily, weekly, etc.)
+ *                       repeat_interval:
+ *                         type: integer
+ *                         description: Interval of recurrence
+ *                       repeat_on:
+ *                         type: string
+ *                         description: Days of the week/month for recurrence (JSON format)
+ *                       starts_on:
+ *                         type: string
+ *                         format: date
+ *                         description: Start date of recurrence
+ *                       ends_on:
+ *                         type: string
+ *                         format: date
+ *                         description: End date of recurrence
  */
+
 const getSchedules = async (req, res) => {
   try {
     const connection = await pool.getConnection();
-    const schedules = await connection.query("SELECT * FROM schedule");
-
+    const query = `
+      SELECT s.*, rp.repeat_type, rp.repeat_interval, rp.repeat_on, rp.starts_on, rp.ends_on
+      FROM schedule s
+      LEFT JOIN recurring_pattern rp ON s.schedule_id = rp.schedule_id
+    `;
+    const schedules = await connection.query(query);
     connection.release();
 
-    const formatDateToKST = (dateString) => {
-      const date = new Date(dateString);
-      const kstOffset = 9 * 60; // 한국 표준시는 UTC보다 9시간 빠릅니다.
-      const kstDate = new Date(date.getTime() + kstOffset * 60000);
-      return kstDate.toISOString().slice(0, 19).replace("T", " ");
-    };
+    const formattedSchedules = schedules.map((schedule) => {
+      const recurringPattern = schedule.repeat_type
+        ? {
+            repeat_type: schedule.repeat_type,
+            repeat_interval: schedule.repeat_interval,
+            repeat_on: schedule.repeat_on ? schedule.repeat_on : [],
+            starts_on: schedule.starts_on,
+            ends_on: schedule.ends_on,
+          }
+        : null;
 
-    // Boolean 값을 올바르게 변환하고, 시간 값을 로컬 타임존으로 변환하여 응답
-    const formattedSchedules = schedules.map((schedule) => ({
-      ...schedule,
-      schedule_start: formatDateToKST(new Date(schedule.schedule_start)),
-      schedule_end: formatDateToKST(new Date(schedule.schedule_end)),
-      schedule_notification: !!schedule.schedule_notification,
-      schedule_recurring: !!schedule.schedule_recurring,
-    }));
+      // Remove repeating fields from the main object
+      const {
+        repeat_type,
+        repeat_interval,
+        repeat_on,
+        starts_on,
+        ends_on,
+        ...scheduleWithoutRepeatingFields
+      } = schedule;
+
+      return {
+        ...scheduleWithoutRepeatingFields,
+        schedule_start: formatDateToKST(schedule.schedule_start),
+        schedule_end: formatDateToKST(schedule.schedule_end),
+        schedule_notification: !!schedule.schedule_notification,
+        schedule_recurring: !!schedule.schedule_recurring,
+        recurring_pattern: recurringPattern,
+      };
+    });
 
     res.json(formattedSchedules);
   } catch (err) {
@@ -122,39 +169,77 @@ const getSchedules = async (req, res) => {
  *                 schedule_recurring:
  *                   type: boolean
  *                   description: Whether the schedule is recurring
+ *                 recurring_pattern:
+ *                   type: object
+ *                   properties:
+ *                     repeat_type:
+ *                       type: string
+ *                       description: Type of recurrence (daily, weekly, etc.)
+ *                     repeat_interval:
+ *                       type: integer
+ *                       description: Interval of recurrence
+ *                     repeat_on:
+ *                       type: string
+ *                       description: Days of the week/month for recurrence (JSON format)
+ *                     starts_on:
+ *                       type: string
+ *                       format: date
+ *                       description: Start date of recurrence
+ *                     ends_on:
+ *                       type: string
+ *                       format: date
+ *                       description: End date of recurrence
  *       404:
  *         description: Schedule not found
  *       500:
  *         description: Server error
  */
+
 const getScheduleById = async (req, res) => {
   const { id } = req.params;
   try {
     const connection = await pool.getConnection();
-    const [schedule] = await connection.query(
-      "SELECT * FROM schedule WHERE schedule_id = ?",
-      [id]
-    );
-
+    const query = `
+      SELECT s.*, rp.repeat_type, rp.repeat_interval, rp.repeat_on, rp.starts_on, rp.ends_on
+      FROM schedule s
+      LEFT JOIN recurring_pattern rp ON s.schedule_id = rp.schedule_id
+      WHERE s.schedule_id = ?
+    `;
+    const schedules = await connection.query(query, [id]);
     connection.release();
 
-    if (!schedule) {
+    if (schedules.length === 0) {
       return res.status(404).json({ error: "Schedule not found" });
     }
 
-    const formatDateToKST = (dateString) => {
-      const date = new Date(dateString);
-      const kstOffset = 9 * 60; // 한국 표준시는 UTC보다 9시간 빠릅니다.
-      const kstDate = new Date(date.getTime() + kstOffset * 60000);
-      return kstDate.toISOString().slice(0, 19).replace("T", " ");
-    };
+    const schedule = schedules[0];
+
+    const recurringPattern = schedule.repeat_type
+      ? {
+          repeat_type: schedule.repeat_type,
+          repeat_interval: schedule.repeat_interval,
+          repeat_on: schedule.repeat_on ? schedule.repeat_on : [],
+          starts_on: schedule.starts_on,
+          ends_on: schedule.ends_on,
+        }
+      : null;
+
+    const {
+      repeat_type,
+      repeat_interval,
+      repeat_on,
+      starts_on,
+      ends_on,
+      ...scheduleWithoutRepeatingFields
+    } = schedule;
 
     const formattedSchedule = {
-      ...schedule,
-      schedule_start: formatDateToKST(new Date(schedule.schedule_start)),
-      schedule_end: formatDateToKST(new Date(schedule.schedule_end)),
+      ...scheduleWithoutRepeatingFields,
+      schedule_start: formatDateToKST(schedule.schedule_start),
+      schedule_end: formatDateToKST(schedule.schedule_end),
       schedule_notification: !!schedule.schedule_notification,
       schedule_recurring: !!schedule.schedule_recurring,
+      recurring_pattern: recurringPattern,
     };
 
     res.json(formattedSchedule);
