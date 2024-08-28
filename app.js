@@ -7,6 +7,7 @@ import passport from "passport";
 import router from "./router.js";
 import routerAuth from "./routerAuth.js";
 import path from "path";
+import cors from "cors";
 import { fileURLToPath } from "url";
 import googleStrategy from "./passport/googleStrategy.js";
 import jwtStrategy from "./passport/jwtStrategy.js";
@@ -24,6 +25,7 @@ const __dirname = path.dirname(__filename);
 const fePath = path.join(__dirname, "views");
 
 app.use(express.json());
+app.use(cors());
 
 app.use((req, res, next) => {
   res.header("Access-Control-Allow-Origin", "*");
@@ -50,15 +52,6 @@ app.use(express.static("public"));
 
 googleStrategy(); // Google 전략 등록
 jwtStrategy();
-
-app.get("/", (req, res) => {
-  res.send(`
-    <h1>hello world</h1>
-    <a href="/oauth/google">log in</a>`);
-});
-app.get("/login-success", (req, res) => {
-  res.sendFile(path.join(fePath, "login-success.html"));
-});
 
 app.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);
