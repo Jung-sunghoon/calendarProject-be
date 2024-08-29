@@ -15,7 +15,7 @@ routerAuth.get(
       process.env.SESSION_SECRET,
       { expiresIn: "1h" }
     );
-    res.redirect(`/login-success?token=${token}`);
+    res.redirect(`http://localhost:5502/src/none/login-success.html?token=${token}`);
   }
 );
 

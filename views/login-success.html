@@ -20,7 +20,8 @@
         if (token) {
           // 토큰을 로컬 스토리지에 저장
           sessionStorage.setItem("jwtToken", token);
-
+          // URL에서 토큰 제거
+          window.history.replaceState({}, document.title, "/login-success.html");
           // 토큰을 사용하여 인증된 요청 예시
           fetchUserData(token);
         } else {
@@ -49,26 +50,6 @@
       function logout() {
         sessionStorage.removeItem("jwtToken");
         window.location.href = "/";
-
-        // // 서버에 로그아웃 요청 (선택적)
-        // fetch("/api/logout", {
-        //   method: "POST",
-        //   headers: {
-        //     Authorization: `Bearer ${localStorage.getItem("jwtToken")}`,
-        //   },
-        // })
-        //   .then((response) => {
-        //     if (response.ok) {
-        //       console.log("서버 로그아웃 성공");
-        //     }
-        //   })
-        //   .catch((error) => {
-        //     console.error("로그아웃 중 오류 발생:", error);
-        //   })
-        // .finally(() => {
-        //   // 홈페이지로 리다이렉트
-        //   window.location.href = '/';
-        // });
       }
 
       logoutBtn.addEventListener("click", () => {
