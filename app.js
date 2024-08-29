@@ -7,7 +7,6 @@ import passport from "passport";
 import router from "./router.js";
 import routerAuth from "./routerAuth.js";
 import path from "path";
-import cors from "cors";
 import { fileURLToPath } from "url";
 import googleStrategy from "./passport/googleStrategy.js";
 import jwtStrategy from "./passport/jwtStrategy.js";
@@ -25,7 +24,6 @@ const __dirname = path.dirname(__filename);
 const fePath = path.join(__dirname, "views");
 
 app.use(express.json());
-app.use(cors());
 
 app.use((req, res, next) => {
   res.header("Access-Control-Allow-Origin", "*");
