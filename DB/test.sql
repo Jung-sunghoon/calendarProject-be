@@ -44,10 +44,11 @@ VALUES
 INSERT IGNORE INTO schedule (schedule_title, schedule_description, schedule_start, schedule_end, schedule_notification, schedule_recurring)
 VALUES 
 ('팀 회의', '주간 팀 동기화 회의', '2024-08-05 10:00:00', '2024-08-05 11:00:00', TRUE, TRUE),
+('야호 팀 회의', '주간 팀 동기화 회의', '2024-08-05 10:00:00', '2024-08-05 11:00:00', FALSE, FALSE),
 ('병원 예약', '연간 건강 검진', '2024-08-07 09:00:00', '2024-08-07 10:00:00', FALSE, FALSE),
 ('프로젝트 마감일', '프로젝트 최종 제출', '2024-08-15 17:00:00', '2024-08-15 18:00:00', TRUE, FALSE);
 
 -- recurring_pattern 테이블에 샘플 데이터 삽입
 INSERT IGNORE INTO recurring_pattern (schedule_id, repeat_type, repeat_interval, repeat_on, starts_on, ends_on)
 VALUES 
-(1, 'weekly', 1, JSON_ARRAY('월요일'), '2024-08-05', '2024-12-31');
+(1, 'weekly', 1, JSON_ARRAY('월'), '2024-08-05', '2024-12-31');
