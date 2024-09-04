@@ -93,8 +93,8 @@ const getSchedules = async (req, res) => {
             repeat_type: schedule.repeat_type,
             repeat_interval: schedule.repeat_interval,
             repeat_on: schedule.repeat_on ? schedule.repeat_on : [],
-            starts_on: schedule.starts_on,
-            ends_on: schedule.ends_on,
+            starts_on: formatDateToKST(schedule.starts_on),
+            ends_on: formatDateToKST(schedule.ends_on),
           }
         : null;
 
@@ -219,8 +219,8 @@ const getScheduleById = async (req, res) => {
           repeat_type: schedule.repeat_type,
           repeat_interval: schedule.repeat_interval,
           repeat_on: schedule.repeat_on ? schedule.repeat_on : [],
-          starts_on: schedule.starts_on,
-          ends_on: schedule.ends_on,
+          starts_on: formatDateToKST(schedule.starts_on),
+          ends_on: formatDateToKST(schedule.ends_on),
         }
       : null;
 
