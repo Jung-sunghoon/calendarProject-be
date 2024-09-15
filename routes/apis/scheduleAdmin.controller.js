@@ -57,6 +57,7 @@ import pool from "../../DB/db.js";
  */
 const createSchedule = async (req, res) => {
   const {
+    user_email,
     schedule_title,
     schedule_description,
     schedule_start,
@@ -78,8 +79,9 @@ const createSchedule = async (req, res) => {
 
     const connection = await pool.getConnection();
     const result = await connection.query(
-      "INSERT INTO schedule (schedule_title, schedule_description, schedule_start, schedule_end, schedule_notification, schedule_recurring) VALUES (?, ?, ?, ?, ?, ?)",
+      "INSERT INTO schedule (user_email, schedule_title, schedule_description, schedule_start, schedule_end, schedule_notification, schedule_recurring) VALUES (?, ?, ?, ?, ?, ?, ?)",
       [
+        user_email,
         schedule_title,
         schedule_description,
         formattedStart,
@@ -146,15 +148,9 @@ const deleteSchedule = async (req, res) => {
     await connection.beginTransaction();
     try {
       //연관된 반복 패턴 삭제
-      await connection.query(
-        "DELETE FROM recurring_pattern WHERE schedule_id = ?",
-        [scheduleId]
-      );
+      await connection.query("DELETE FROM recurring_pattern WHERE schedule_id = ?", [scheduleId]);
 
-      const result = await connection.query(
-        "DELETE FROM schedule WHERE schedule_id = ?",
-        [scheduleId]
-      );
+      const result = await connection.query("DELETE FROM schedule WHERE schedule_id = ?", [scheduleId]);
 
       //트랜잭션 커밋
       await connection.commit();
@@ -243,6 +239,7 @@ const deleteSchedule = async (req, res) => {
 const updateSchedule = async (req, res) => {
   const scheduleId = req.params.id;
   const {
+    user_email,
     schedule_title,
     schedule_description,
     schedule_start,
@@ -283,8 +280,9 @@ const updateSchedule = async (req, res) => {
 
     const connection = await pool.getConnection();
     const result = await connection.query(
-      "UPDATE schedule SET schedule_title = ?, schedule_description = ?, schedule_start = ?, schedule_end = ?, schedule_notification = ?, schedule_recurring = ? WHERE schedule_id = ?",
+      "UPDATE schedule SET user_email = ?, schedule_title = ?, schedule_description = ?, schedule_start = ?, schedule_end = ?, schedule_notification = ?, schedule_recurring = ? WHERE schedule_id = ?",
       [
+        user_email,
         schedule_title,
         schedule_description,
         formattedStart,
