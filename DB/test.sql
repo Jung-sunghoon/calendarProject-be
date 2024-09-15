@@ -18,13 +18,14 @@ CREATE TABLE IF NOT EXISTS schedule (
   schedule_start TIMESTAMP,
   schedule_end TIMESTAMP,
   schedule_notification BOOLEAN DEFAULT FALSE,
-  schedule_recurring BOOLEAN DEFAULT FALSE
+  schedule_recurring BOOLEAN DEFAULT FALSE,
+  FOREIGN KEY (schedule_id) REFERENCES users(email)
 );
 
 -- recurring_pattern 테이블 생성
 CREATE TABLE IF NOT EXISTS recurring_pattern (
   pattern_id INT AUTO_INCREMENT PRIMARY KEY,
-  schedule_id INT,
+  schedule_id INT UNIQUE,
   repeat_type ENUM('daily', 'weekly', 'monthly', 'yearly'),
   repeat_interval INT,
   repeat_on JSON,
