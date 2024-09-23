@@ -1,7 +1,7 @@
 import passport from "passport";
 import { Strategy as JwtStrategy } from "passport-jwt";
 import { ExtractJwt } from "passport-jwt";
-import pool from "../DB/db.js";
+// import pool from "../DB/db.js";
 
 const opts = {
   jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
@@ -15,7 +15,10 @@ export default () => {
       try {
         const connection = await pool.getConnection();
         try {
-          const [rows] = await connection.execute("SELECT * FROM users WHERE email = ?", [jwt_payload.email]);
+          const [rows] = await connection.execute(
+            "SELECT * FROM users WHERE email = ?",
+            [jwt_payload.email]
+          );
 
           if (rows) {
             const user = rows;

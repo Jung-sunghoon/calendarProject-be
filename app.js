@@ -2,7 +2,7 @@ import express from "express";
 import { config } from "dotenv";
 import { swaggerUi, swaggerSpec } from "./swagger.js";
 import session from "express-session";
-import executeSqlFile from "./DB/executeSqlFile.js";
+// import executeSqlFile from "./DB/executeSqlFile.js";
 import passport from "passport";
 import router from "./router.js";
 import routerAuth from "./routerAuth.js";
@@ -12,7 +12,7 @@ import googleStrategy from "./passport/googleStrategy.js";
 import jwtStrategy from "./passport/jwtStrategy.js";
 
 // test.sql문 실행
-executeSqlFile();
+// executeSqlFile();
 
 // 환경 변수 로드
 config();

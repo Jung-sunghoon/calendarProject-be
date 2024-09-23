@@ -1,4 +1,4 @@
-import pool from "../../DB/db.js";
+import { db } from "../../DB/db.js";
 
 const formatDateToKST = (dateString) => {
   const date = new Date(dateString);
@@ -48,75 +48,25 @@ const formatDateToKST = (dateString) => {
  *                     type: string
  *                     format: date-time
  *                     description: End time of the schedule
- *                   schedule_notification:
- *                     type: boolean
- *                     description: Whether the schedule has a notification
- *                   schedule_recurring:
- *                     type: boolean
- *                     description: Whether the schedule is recurring
- *                   recurring_pattern:
- *                     type: object
- *                     properties:
- *                       repeat_type:
- *                         type: string
- *                         description: Type of recurrence (daily, weekly, etc.)
- *                       repeat_interval:
- *                         type: integer
- *                         description: Interval of recurrence
- *                       repeat_on:
- *                         type: string
- *                         description: Days of the week/month for recurrence (JSON format)
- *                       starts_on:
- *                         type: string
- *                         format: date
- *                         description: Start date of recurrence
- *                       ends_on:
- *                         type: string
- *                         format: date
- *                         description: End date of recurrence
+ *       404:
+ *         description: Schedule not found
+ *       500:
+ *         description: Server error
  */
 
 const getSchedules = async (req, res) => {
   try {
-    const connection = await pool.getConnection();
-    const query = `
-      SELECT s.*, rp.repeat_type, rp.repeat_interval, rp.repeat_on, rp.starts_on, rp.ends_on
-      FROM schedule s
-      LEFT JOIN recurring_pattern rp ON s.schedule_id = rp.schedule_id
-    `;
-    const schedules = await connection.query(query);
-    connection.release();
+    const schedulesSnapshot = await db.collection("schedules").get(); // db 인스턴스를 사용
+    const schedules = schedulesSnapshot.docs.map((doc) => ({
+      id: doc.id,
+      ...doc.data(),
+    }));
 
-    const formattedSchedules = schedules.map((schedule) => {
-      const recurringPattern = schedule.repeat_type
-        ? {
-            repeat_type: schedule.repeat_type,
-            repeat_interval: schedule.repeat_interval,
-            repeat_on: schedule.repeat_on ? schedule.repeat_on : [],
-            starts_on: formatDateToKST(schedule.starts_on),
-            ends_on: formatDateToKST(schedule.ends_on),
-          }
-        : null;
-
-      // Remove repeating fields from the main object
-      const {
-        repeat_type,
-        repeat_interval,
-        repeat_on,
-        starts_on,
-        ends_on,
-        ...scheduleWithoutRepeatingFields
-      } = schedule;
-
-      return {
-        ...scheduleWithoutRepeatingFields,
-        schedule_start: formatDateToKST(schedule.schedule_start),
-        schedule_end: formatDateToKST(schedule.schedule_end),
-        schedule_notification: !!schedule.schedule_notification,
-        schedule_recurring: !!schedule.schedule_recurring,
-        recurring_pattern: recurringPattern,
-      };
-    });
+    const formattedSchedules = schedules.map((schedule) => ({
+      ...schedule,
+      schedule_start: formatDateToKST(schedule.schedule_start),
+      schedule_end: formatDateToKST(schedule.schedule_end),
+    }));
 
     res.json(formattedSchedules);
   } catch (err) {
@@ -163,32 +113,6 @@ const getSchedules = async (req, res) => {
  *                   type: string
  *                   format: date-time
  *                   description: End time of the schedule
- *                 schedule_notification:
- *                   type: boolean
- *                   description: Whether the schedule has a notification
- *                 schedule_recurring:
- *                   type: boolean
- *                   description: Whether the schedule is recurring
- *                 recurring_pattern:
- *                   type: object
- *                   properties:
- *                     repeat_type:
- *                       type: string
- *                       description: Type of recurrence (daily, weekly, etc.)
- *                     repeat_interval:
- *                       type: integer
- *                       description: Interval of recurrence
- *                     repeat_on:
- *                       type: string
- *                       description: Days of the week/month for recurrence (JSON format)
- *                     starts_on:
- *                       type: string
- *                       format: date
- *                       description: Start date of recurrence
- *                     ends_on:
- *                       type: string
- *                       format: date
- *                       description: End date of recurrence
  *       404:
  *         description: Schedule not found
  *       500:
@@ -198,48 +122,18 @@ const getSchedules = async (req, res) => {
 const getScheduleById = async (req, res) => {
   const { id } = req.params;
   try {
-    const connection = await pool.getConnection();
-    const query = `
-      SELECT s.*, rp.repeat_type, rp.repeat_interval, rp.repeat_on, rp.starts_on, rp.ends_on
-      FROM schedule s
-      LEFT JOIN recurring_pattern rp ON s.schedule_id = rp.schedule_id
-      WHERE s.schedule_id = ?
-    `;
-    const schedules = await connection.query(query, [id]);
-    connection.release();
+    const scheduleDoc = await db.collection("schedules").doc(id).get();
 
-    if (schedules.length === 0) {
+    if (!scheduleDoc.exists) {
       return res.status(404).json({ error: "Schedule not found" });
     }
 
-    const schedule = schedules[0];
-
-    const recurringPattern = schedule.repeat_type
-      ? {
-          repeat_type: schedule.repeat_type,
-          repeat_interval: schedule.repeat_interval,
-          repeat_on: schedule.repeat_on ? schedule.repeat_on : [],
-          starts_on: formatDateToKST(schedule.starts_on),
-          ends_on: formatDateToKST(schedule.ends_on),
-        }
-      : null;
-
-    const {
-      repeat_type,
-      repeat_interval,
-      repeat_on,
-      starts_on,
-      ends_on,
-      ...scheduleWithoutRepeatingFields
-    } = schedule;
+    const schedule = scheduleDoc.data();
 
     const formattedSchedule = {
-      ...scheduleWithoutRepeatingFields,
+      ...schedule,
       schedule_start: formatDateToKST(schedule.schedule_start),
       schedule_end: formatDateToKST(schedule.schedule_end),
-      schedule_notification: !!schedule.schedule_notification,
-      schedule_recurring: !!schedule.schedule_recurring,
-      recurring_pattern: recurringPattern,
     };
 
     res.json(formattedSchedule);
