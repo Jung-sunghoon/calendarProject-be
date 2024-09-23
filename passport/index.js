@@ -1,6 +1,6 @@
 import passport from "passport";
 
-import pool from "../DB/db.js";
+// import pool from "../DB/db.js";
 
 export default () => {
   // user를 전달 받아 세션(req.session.passport.user)에 저장

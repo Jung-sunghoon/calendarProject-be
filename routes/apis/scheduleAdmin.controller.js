@@ -8,6 +8,24 @@ const formatDateToKST = (dateString) => {
   return kstDate.toISOString().slice(0, 19).replace("T", " ");
 };
 
+const getNextScheduleId = async () => {
+  const counterRef = db.collection('counters').doc('schedule_counter');
+  
+  const transaction = await db.runTransaction(async (t) => {
+    const doc = await t.get(counterRef);
+    
+    let newId = 1;
+    if (doc.exists) {
+      newId = doc.data().currentId + 1;
+    }
+    
+    t.set(counterRef, { currentId: newId }, { merge: true });
+    return newId;
+  });
+  
+  return transaction;
+};
+
 /**
  * @swagger
  * tags:
@@ -29,6 +47,9 @@ const formatDateToKST = (dateString) => {
  *           schema:
  *             type: object
  *             properties:
+ *               user_email:
+ *                 type: string
+ *                 description: user email
  *               schedule_title:
  *                 type: string
  *                 description: Title of the schedule
@@ -55,6 +76,7 @@ const formatDateToKST = (dateString) => {
  *                   type: string
  *                   description: ID of the created schedule
  */
+
 const createSchedule = async (req, res) => {
   const {
     user_email,
@@ -65,16 +87,19 @@ const createSchedule = async (req, res) => {
   } = req.body;
 
   try {
-    const scheduleRef = db.collection("schedules").doc();
+    // 자동 증가하는 schedule_id 가져오기
+    const schedule_id = await getNextScheduleId();
+
+    // Firestore에 새로운 문서 추가
+    const scheduleRef = db.collection("schedules").doc(String(schedule_id));
     await scheduleRef.set({
+      schedule_id, // 숫자 형태로 자동 증가하는 schedule_id 추가
       user_email,
       schedule_title,
       schedule_description,
       schedule_start: formatDateToKST(schedule_start),
       schedule_end: formatDateToKST(schedule_end),
     });
-
-    const schedule_id = scheduleRef.id;
 
     res.status(201).json({ schedule_id });
   } catch (err) {
