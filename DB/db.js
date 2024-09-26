@@ -46,12 +46,8 @@
 
 // export { db, admin };
 
-import { config } from "dotenv";
 import admin from "firebase-admin";
 import serviceAccount from "../cp.json" assert { type: "json" };
-
-// 환경 변수 로드
-config();
 
 // Firebase Admin 초기화
 admin.initializeApp({
