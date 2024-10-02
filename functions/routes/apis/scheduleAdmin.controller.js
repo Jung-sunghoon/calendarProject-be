@@ -1,12 +1,4 @@
-// import pool from "../../DB/db.js";
 import { db } from "../../DB/db.js";
-
-const formatDateToKST = (dateString) => {
-  const date = new Date(dateString);
-  const kstOffset = 9 * 60;
-  const kstDate = new Date(date.getTime() + kstOffset * 60000);
-  return kstDate.toISOString().slice(0, 19).replace("T", " ");
-};
 
 const getNextScheduleId = async () => {
   const counterRef = db.collection('counters').doc('schedule_counter');
@@ -97,8 +89,8 @@ const createSchedule = async (req, res) => {
       user_email,
       schedule_title,
       schedule_description,
-      schedule_start: formatDateToKST(schedule_start),
-      schedule_end: formatDateToKST(schedule_end),
+      schedule_start: schedule_start,
+      schedule_end: schedule_end,
     });
 
     res.status(201).json({ schedule_id });
@@ -235,8 +227,8 @@ const updateSchedule = async (req, res) => {
       user_email,
       schedule_title,
       schedule_description,
-      schedule_start: formatDateToKST(schedule_start),
-      schedule_end: formatDateToKST(schedule_end),
+      schedule_start: schedule_start,
+      schedule_end: schedule_end,
     });
 
     res.status(200).json({

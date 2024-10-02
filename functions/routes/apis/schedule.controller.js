@@ -1,12 +1,5 @@
 import { db } from "../../DB/db.js";
 
-const formatDateToKST = (dateString) => {
-  const date = new Date(dateString);
-  const kstOffset = 9 * 60;
-  const kstDate = new Date(date.getTime() + kstOffset * 60000);
-  return kstDate.toISOString().slice(0, 19).replace("T", " ");
-};
-
 /**
  * @swagger
  * tags:
@@ -64,8 +57,8 @@ const getSchedules = async (req, res) => {
 
     const formattedSchedules = schedules.map((schedule) => ({
       ...schedule,
-      schedule_start: formatDateToKST(schedule.schedule_start),
-      schedule_end: formatDateToKST(schedule.schedule_end),
+      schedule_start: schedule.schedule_start,
+      schedule_end: schedule.schedule_end,
     }));
 
     res.json(formattedSchedules);
@@ -132,8 +125,8 @@ const getScheduleById = async (req, res) => {
 
     const formattedSchedule = {
       ...schedule,
-      schedule_start: formatDateToKST(schedule.schedule_start),
-      schedule_end: formatDateToKST(schedule.schedule_end),
+      schedule_start: schedule.schedule_start,
+      schedule_end: schedule.schedule_end,
     };
 
     res.json(formattedSchedule);
