@@ -41,7 +41,7 @@ const getNextScheduleId = async () => {
  *             properties:
  *               user_email:
  *                 type: string
- *                 description: user email
+ *                 description: User email
  *               schedule_title:
  *                 type: string
  *                 description: Title of the schedule
@@ -67,7 +67,18 @@ const getNextScheduleId = async () => {
  *                 schedule_id:
  *                   type: string
  *                   description: ID of the created schedule
+ *       500:
+ *         description: Internal server error
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 error:
+ *                   type: string
+ *                   description: Description of the error
  */
+
 
 const createSchedule = async (req, res) => {
   const {
